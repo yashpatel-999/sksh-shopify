@@ -1,6 +1,8 @@
 import {CartForm, Money} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
+import {cartHasSpecialOfferQuantityViolation, getSpecialOfferLineMessage} from '~/lib/cart';
+import {useToast} from '~/components/ui/Toast';
 
 /**
  * @param {CartSummaryProps}
@@ -37,20 +39,36 @@ export function CartSummary({cart, layout}) {
         giftCardHeadingId={giftCardHeadingId}
         giftCardInputId={giftCardInputId}
       />
-      <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
+      <CartCheckoutActions cart={cart} checkoutUrl={cart?.checkoutUrl} />
     </div>
   );
 }
 
 /**
- * @param {{checkoutUrl?: string}}
+ * @param {{checkoutUrl?: string; cart?: CartApiQueryFragment | null}}
  */
-function CartCheckoutActions({checkoutUrl}) {
+function CartCheckoutActions({checkoutUrl, cart}) {
+  const {showToast} = useToast();
+
   if (!checkoutUrl) return null;
+  const invalid = cartHasSpecialOfferQuantityViolation(cart);
 
   return (
     <div>
-      <a href={checkoutUrl} target="_self">
+      <a
+        href={checkoutUrl}
+        target="_self"
+        onClick={(event) => {
+          if (invalid) {
+            event.preventDefault();
+            showToast(
+              getSpecialOfferLineMessage(cart) ||
+                'Only 1 offer item allowed per customer',
+              'warning',
+            );
+          }
+        }}
+      >
         <p>Continue to Checkout &rarr;</p>
       </a>
       <br />

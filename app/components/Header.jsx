@@ -10,8 +10,11 @@ export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
   const {shop, menu} = header;
   return (
     <header className="header">
-      <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
+      <NavLink prefetch="intent" to="/" className="header-brand" end>
+        <div className="header-brand-inner">
+          <p className="header-brand-accent">Saree Boutique</p>
+          <strong>{shop.name || 'Luxury Silks'}</strong>
+        </div>
       </NavLink>
       <HeaderMenu
         menu={menu}
@@ -87,7 +90,7 @@ export function HeaderMenu({
  */
 function HeaderCtas({isLoggedIn, cart}) {
   return (
-    <nav className="header-ctas" role="navigation">
+    <div className="header-ctas">
       <HeaderMenuMobileToggle />
       <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
         <Suspense fallback="Sign in">
@@ -98,7 +101,7 @@ function HeaderCtas({isLoggedIn, cart}) {
       </NavLink>
       <SearchToggle />
       <CartToggle cart={cart} />
-    </nav>
+    </div>
   );
 }
 
@@ -109,7 +112,7 @@ function HeaderMenuMobileToggle() {
       className="header-menu-mobile-toggle reset"
       onClick={() => open('mobile')}
     >
-      <h3>☰</h3>
+      <span>☰</span>
     </button>
   );
 }
@@ -117,7 +120,7 @@ function HeaderMenuMobileToggle() {
 function SearchToggle() {
   const {open} = useAside();
   return (
-    <button className="reset" onClick={() => open('search')}>
+    <button className="header-search-toggle" onClick={() => open('search')}>
       Search
     </button>
   );
@@ -132,6 +135,7 @@ function CartBadge({count}) {
 
   return (
     <a
+      className="header-cart-badge"
       href="/cart"
       onClick={(e) => {
         e.preventDefault();
@@ -144,7 +148,10 @@ function CartBadge({count}) {
         });
       }}
     >
-      Cart <span aria-label={`(items: ${count})`}>{count}</span>
+      <span>Cart</span>
+      <span className="header-cart-count" aria-label={`${count} items in cart`}>
+        {count}
+      </span>
     </a>
   );
 }

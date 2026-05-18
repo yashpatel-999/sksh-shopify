@@ -10,13 +10,22 @@ export function Footer({footer: footerPromise, header, publicStoreDomain}) {
       <Await resolve={footerPromise}>
         {(footer) => (
           <footer className="footer">
-            {footer?.menu && header.shop.primaryDomain?.url && (
-              <FooterMenu
-                menu={footer.menu}
-                primaryDomainUrl={header.shop.primaryDomain.url}
-                publicStoreDomain={publicStoreDomain}
-              />
-            )}
+            <div className="footer-inner">
+              <div className="footer-brand">
+                <p className="eyebrow">Saree Boutique</p>
+                <h3>Heirloom silk, refined for modern celebration.</h3>
+                <p>
+                  Curated South Indian sarees, styled with a luxury-first tone and a mobile-first shopping flow.
+                </p>
+              </div>
+              {footer?.menu && header.shop.primaryDomain?.url && (
+                <FooterMenu
+                  menu={footer.menu}
+                  primaryDomainUrl={header.shop.primaryDomain.url}
+                  publicStoreDomain={publicStoreDomain}
+                />
+              )}
+            </div>
           </footer>
         )}
       </Await>

@@ -3,6 +3,7 @@ import {useVariantUrl} from '~/lib/variants';
 import {Link} from 'react-router';
 import {ProductPrice} from './ProductPrice';
 import {useAside} from './Aside';
+import {isSpecialOfferProduct} from '~/lib/cart';
 
 /**
  * A single line item in the cart. It displays the product image, title, price.
@@ -95,6 +96,7 @@ export function CartLineItem({layout, line, childrenMap}) {
 function CartLineQuantity({line}) {
   if (!line || typeof line?.quantity === 'undefined') return null;
   const {id: lineId, quantity, isOptimistic} = line;
+  const specialOffer = isSpecialOfferProduct(line?.merchandise?.product);
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
   const nextQuantity = Number((quantity + 1).toFixed(0));
 
@@ -117,13 +119,14 @@ function CartLineQuantity({line}) {
           aria-label="Increase quantity"
           name="increase-quantity"
           value={nextQuantity}
-          disabled={!!isOptimistic}
+          disabled={!!isOptimistic || specialOffer}
         >
           <span>&#43;</span>
         </button>
       </CartLineUpdateButton>
       &nbsp;
       <CartLineRemoveButton lineIds={[lineId]} disabled={!!isOptimistic} />
+      {specialOffer ? <small className="cart-line-note">Offer items are capped at 1.</small> : null}
     </div>
   );
 }

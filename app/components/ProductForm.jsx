@@ -1,16 +1,22 @@
 import {Link, useNavigate} from 'react-router';
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
+import {cartHasProduct, isSpecialOfferProduct} from '~/lib/cart';
 
 /**
  * @param {{
  *   productOptions: MappedProductOptions[];
  *   selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
+ *   cart: CartApiQueryFragment | null;
+ *   product: ProductFragment;
  * }}
  */
-export function ProductForm({productOptions, selectedVariant}) {
+export function ProductForm({productOptions, selectedVariant, cart, product}) {
   const navigate = useNavigate();
   const {open} = useAside();
+  const specialOffer = isSpecialOfferProduct(product);
+  const alreadyInCart = specialOffer && cartHasProduct(cart, product.id);
+  const addToCartDisabled = !selectedVariant || !selectedVariant.availableForSale || alreadyInCart;
   return (
     <div className="product-form">
       {productOptions.map((option) => {
@@ -94,7 +100,7 @@ export function ProductForm({productOptions, selectedVariant}) {
         );
       })}
       <AddToCartButton
-        disabled={!selectedVariant || !selectedVariant.availableForSale}
+        disabled={addToCartDisabled}
         onClick={() => {
           open('cart');
         }}
@@ -110,7 +116,11 @@ export function ProductForm({productOptions, selectedVariant}) {
             : []
         }
       >
-        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
+        {alreadyInCart
+          ? 'Only 1 offer item allowed per customer'
+          : selectedVariant?.availableForSale
+            ? 'Add to cart'
+            : 'Sold out'}
       </AddToCartButton>
     </div>
   );

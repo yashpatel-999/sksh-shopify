@@ -1,4 +1,6 @@
 import {useLoaderData} from 'react-router';
+import {Await, useRouteLoaderData} from 'react-router';
+import {Suspense} from 'react';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -76,7 +78,7 @@ async function loadCriticalData({context, params, request}) {
  * Make sure to not throw any errors here, as it will cause the page to 500.
  * @param {Route.LoaderArgs}
  */
-function loadDeferredData({context, params}) {
+function loadDeferredData() {
   // Put any API calls that is not critical to be available on first page render
   // For example: product reviews, product recommendations, social feeds.
 
@@ -104,6 +106,7 @@ export default function Product() {
   });
 
   const {title, descriptionHtml} = product;
+  const rootData = useRouteLoaderData('root');
 
   return (
     <div className="product">
@@ -115,10 +118,18 @@ export default function Product() {
           compareAtPrice={selectedVariant?.compareAtPrice}
         />
         <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
-        />
+        <Suspense fallback={<div className="product-form-loading">Loading cart state...</div>}>
+          <Await resolve={rootData?.cart}>
+            {(cart) => (
+              <ProductForm
+                cart={cart}
+                product={product}
+                productOptions={productOptions}
+                selectedVariant={selectedVariant}
+              />
+            )}
+          </Await>
+        </Suspense>
         <br />
         <br />
         <p>
@@ -192,6 +203,7 @@ const PRODUCT_FRAGMENT = `#graphql
     handle
     descriptionHtml
     description
+    tags
     encodedVariantExistence
     encodedVariantAvailability
     options {
